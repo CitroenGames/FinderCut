@@ -1,0 +1,76 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        build-type: [native, universal]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Print environment
+        run: |
+          sw_vers
+          xcode-select -p
+          swiftc --version
+
+      - name: Build (${{ matrix.build-type }})
+        working-directory: FinderCut
+        run: |
+          chmod +x build.sh
+          if [ "${{ matrix.build-type }}" = "universal" ]; then
+            ./build.sh --universal
+          else
+            ./build.sh
+          fi
+
+      - name: Verify app bundle
+        working-directory: FinderCut
+        run: |
+          test -d build/FinderCut.app
+          test -f build/FinderCut.app/Contents/MacOS/FinderCut
+          test -d build/FinderCut.app/Contents/PlugIns/FinderCutExtension.appex
+          echo "App bundle structure verified"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinderCut-${{ matrix.build-type }}
+          path: FinderCut/build/FinderCut.app
+
+  release:
+    needs: build
+    runs-on: macos-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build universal binary
+        working-directory: FinderCut
+        run: |
+          chmod +x build.sh
+          ./build.sh --clean --universal
+
+      - name: Create DMG
+        run: |
+          hdiutil create -volname "FinderCut" \
+            -srcfolder FinderCut/build/FinderCut.app \
+            -ov -format UDZO \
+            FinderCut.dmg
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: FinderCut-dmg
+          path: FinderCut.dmg
