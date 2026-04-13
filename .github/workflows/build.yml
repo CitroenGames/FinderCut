@@ -71,3 +71,13 @@ jobs:
         with:
           name: FinderCut-dmg
           path: FinderCut.dmg
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v1.0.${{ github.run_number }}"
+          gh release create "$TAG" \
+            --title "FinderCut $TAG" \
+            --notes "Automated release of FinderCut (universal binary for macOS)." \
+            FinderCut.dmg
