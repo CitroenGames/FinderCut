@@ -10,6 +10,8 @@ enum AccessibilityChecker {
         AXIsProcessTrusted()
     }
 
+    private static var pollTimer: Timer?
+
     /// Prompts the user to grant Accessibility permission via the system dialog.
     /// Opens System Settings > Privacy & Security > Accessibility with the app pre-selected.
     @discardableResult
@@ -18,6 +20,26 @@ enum AccessibilityChecker {
             kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true
         ] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
+    }
+
+    /// Polls `AXIsProcessTrusted()` every second until permission is granted,
+    /// then calls `onGranted` on the main thread. macOS provides no notification
+    /// for accessibility permission changes, so polling is the standard approach.
+    static func pollForPermission(onGranted: @escaping () -> Void) {
+        stopPolling()
+        pollTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            if AXIsProcessTrusted() {
+                timer.invalidate()
+                pollTimer = nil
+                NSLog("FinderCut: Accessibility permission granted (detected by polling)")
+                onGranted()
+            }
+        }
+    }
+
+    static func stopPolling() {
+        pollTimer?.invalidate()
+        pollTimer = nil
     }
 
     /// Opens the Accessibility settings pane directly.

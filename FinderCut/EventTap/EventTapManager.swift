@@ -97,6 +97,11 @@ final class EventTapManager {
             return Unmanaged.passUnretained(event)
         }
 
+        // Skip events we simulated ourselves to avoid re-entrancy
+        guard !KeySimulator.isSimulating else {
+            return Unmanaged.passUnretained(event)
+        }
+
         // Only intercept when Finder is the frontmost app
         guard FinderDetector.isFinderFrontmost else {
             return Unmanaged.passUnretained(event)
@@ -138,11 +143,14 @@ final class EventTapManager {
         if commandOnly && keyCode == KeySimulator.keyCodeV && CutStateManager.shared.hasPendingCut {
             NSLog("FinderCut: Intercepted Cmd+V with pending cut → simulating Option+Cmd+V (move)")
 
-            // Simulate Option+Cmd+V (Finder's native "Move Item Here")
-            KeySimulator.simulateMove()
-
             // Clear the pending cut state
             CutStateManager.shared.clearPendingCut()
+
+            // Dispatch asynchronously so the original Cmd+V is fully consumed
+            // before the simulated Option+Cmd+V enters the event stream
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                KeySimulator.simulateMove()
+            }
 
             // Swallow the original Cmd+V event
             return nil

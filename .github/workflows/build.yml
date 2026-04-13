@@ -24,7 +24,6 @@ jobs:
           swiftc --version
 
       - name: Build (${{ matrix.build-type }})
-        working-directory: FinderCut
         run: |
           chmod +x build.sh
           if [ "${{ matrix.build-type }}" = "universal" ]; then
@@ -34,7 +33,6 @@ jobs:
           fi
 
       - name: Verify app bundle
-        working-directory: FinderCut
         run: |
           test -d build/FinderCut.app
           test -f build/FinderCut.app/Contents/MacOS/FinderCut
@@ -45,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: FinderCut-${{ matrix.build-type }}
-          path: FinderCut/build/FinderCut.app
+          path: build/FinderCut.app
 
   release:
     needs: build
@@ -57,7 +55,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build universal binary
-        working-directory: FinderCut
         run: |
           chmod +x build.sh
           ./build.sh --clean --universal
@@ -65,7 +62,7 @@ jobs:
       - name: Create DMG
         run: |
           hdiutil create -volname "FinderCut" \
-            -srcfolder FinderCut/build/FinderCut.app \
+            -srcfolder build/FinderCut.app \
             -ov -format UDZO \
             FinderCut.dmg
 

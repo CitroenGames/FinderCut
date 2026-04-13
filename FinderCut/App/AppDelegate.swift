@@ -4,19 +4,26 @@ import ServiceManagement
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Check and request accessibility permission
-        if !AccessibilityChecker.isTrusted {
-            AccessibilityChecker.requestPermission()
-        }
-
-        // Start the event tap if enabled
-        let isEnabled = UserDefaults.standard.bool(forKey: "isEnabled")
         // Default to enabled on first launch
         if !UserDefaults.standard.contains(key: "isEnabled") {
             UserDefaults.standard.set(true, forKey: "isEnabled")
-            EventTapManager.shared.start()
-        } else if isEnabled {
-            EventTapManager.shared.start()
+        }
+
+        let isEnabled = UserDefaults.standard.bool(forKey: "isEnabled")
+
+        if AccessibilityChecker.isTrusted {
+            // Permission already granted — start immediately
+            if isEnabled {
+                EventTapManager.shared.start()
+            }
+        } else {
+            // Request permission and poll until granted
+            AccessibilityChecker.requestPermission()
+            AccessibilityChecker.pollForPermission {
+                if UserDefaults.standard.bool(forKey: "isEnabled") {
+                    EventTapManager.shared.start()
+                }
+            }
         }
 
         // Observe app activation changes to clear cut state when leaving Finder

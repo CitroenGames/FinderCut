@@ -11,6 +11,9 @@ enum KeySimulator {
     static let keyCodeV: CGKeyCode = 0x09
     static let keyCodeX: CGKeyCode = 0x07
 
+    /// Guard flag to prevent the event tap from intercepting our own simulated events.
+    static var isSimulating = false
+
     // MARK: - Public Methods
 
     /// Simulates pressing Cmd+C (copy) by posting keyDown and keyUp events.
@@ -27,7 +30,10 @@ enum KeySimulator {
     // MARK: - Private
 
     private static func postKeyEvent(keyCode: CGKeyCode, flags: CGEventFlags) {
-        let source = CGEventSource(stateID: .hidSystemState)
+        // Use .privateState so simulated modifier flags are independent from
+        // the physical keyboard state. With .hidSystemState, Finder can see
+        // that Option isn't physically held and ignore the modifier.
+        let source = CGEventSource(stateID: .privateState)
 
         guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true),
               let keyUp = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false) else {
@@ -38,8 +44,14 @@ enum KeySimulator {
         keyDown.flags = flags
         keyUp.flags = flags
 
-        // Post to the HID event tap so Finder receives the simulated keypress
+        isSimulating = true
+
         keyDown.post(tap: .cghidEventTap)
+        // Delay so Finder processes keyDown before keyUp arrives
+        usleep(50_000)
         keyUp.post(tap: .cghidEventTap)
+        usleep(10_000)
+
+        isSimulating = false
     }
 }

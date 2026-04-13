@@ -215,12 +215,20 @@ else
         "${EXT_FLAGS[@]}" "${EXT_SOURCES[@]}"
 fi
 
-# ─── Copy Info.plist Files ────────────────────────────────────────────────────
+# ─── Process Info.plist Files ─────────────────────────────────────────────────
 
-echo "==> Copying Info.plist files..."
+echo "==> Processing Info.plist files..."
 
-cp "$SRC_DIR/Info.plist" "$APP_CONTENTS/Info.plist"
-cp "$EXT_SRC_DIR/Info.plist" "$EXT_CONTENTS/Info.plist"
+sed -e "s/\$(EXECUTABLE_NAME)/$APP_NAME/g" \
+    -e "s/\$(PRODUCT_BUNDLE_IDENTIFIER)/$BUNDLE_ID/g" \
+    -e "s/\$(MACOSX_DEPLOYMENT_TARGET)/$DEPLOYMENT_TARGET/g" \
+    "$SRC_DIR/Info.plist" > "$APP_CONTENTS/Info.plist"
+
+sed -e "s/\$(EXECUTABLE_NAME)/$EXT_NAME/g" \
+    -e "s/\$(PRODUCT_BUNDLE_IDENTIFIER)/$EXT_BUNDLE_ID/g" \
+    -e "s/\$(MACOSX_DEPLOYMENT_TARGET)/$DEPLOYMENT_TARGET/g" \
+    -e "s/\$(PRODUCT_MODULE_NAME)/$EXT_NAME/g" \
+    "$EXT_SRC_DIR/Info.plist" > "$EXT_CONTENTS/Info.plist"
 
 # ─── Code Signing ────────────────────────────────────────────────────────────
 

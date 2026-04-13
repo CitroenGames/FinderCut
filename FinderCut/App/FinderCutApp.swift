@@ -14,6 +14,8 @@ struct FinderCutApp: App {
 struct MenuBarView: View {
     @AppStorage("isEnabled") private var isEnabled = true
     @AppStorage("playSoundOnCut") private var playSoundOnCut = true
+    @State private var accessibilityGranted = AccessibilityChecker.isTrusted
+    private let timer = Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()
 
     var body: some View {
         Toggle("Enabled", isOn: $isEnabled)
@@ -36,10 +38,13 @@ struct MenuBarView: View {
 
         Divider()
 
-        Text("Accessibility: \(AccessibilityChecker.isTrusted ? "Granted" : "Not Granted")")
-            .foregroundColor(AccessibilityChecker.isTrusted ? .green : .red)
+        Text("Accessibility: \(accessibilityGranted ? "Granted" : "Not Granted")")
+            .foregroundColor(accessibilityGranted ? .green : .red)
+            .onReceive(timer) { _ in
+                accessibilityGranted = AccessibilityChecker.isTrusted
+            }
 
-        if !AccessibilityChecker.isTrusted {
+        if !accessibilityGranted {
             Button("Grant Accessibility Permission") {
                 AccessibilityChecker.requestPermission()
             }
