@@ -61,12 +61,70 @@ jobs:
           chmod +x build.sh
           ./build.sh --clean --universal
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Generate DMG background
+        run: |
+          pip3 install Pillow
+          python3 -c "
+          from PIL import Image, ImageDraw, ImageFont
+
+          W, H = 660, 400
+          img = Image.new('RGB', (W, H))
+          draw = ImageDraw.Draw(img)
+
+          # Gradient background (light gray to slightly darker)
+          for y in range(H):
+              r = int(240 - (y / H) * 30)
+              g = int(240 - (y / H) * 30)
+              b = int(245 - (y / H) * 25)
+              draw.line([(0, y), (W, y)], fill=(r, g, b))
+
+          # Arrow from app icon area to Applications area
+          arrow_y = 200
+          arrow_left = 260
+          arrow_right = 410
+          arrow_color = (160, 160, 165)
+
+          # Arrow shaft
+          draw.rectangle([arrow_left, arrow_y - 4, arrow_right - 20, arrow_y + 4], fill=arrow_color)
+
+          # Arrow head
+          draw.polygon([
+              (arrow_right, arrow_y),
+              (arrow_right - 30, arrow_y - 18),
+              (arrow_right - 30, arrow_y + 18)
+          ], fill=arrow_color)
+
+          # Text
+          try:
+              font = ImageFont.truetype('/System/Library/Fonts/Helvetica.ttc', 16)
+          except:
+              font = ImageFont.load_default()
+          text = 'Drag to Applications'
+          bbox = draw.textbbox((0, 0), text, font=font)
+          tw = bbox[2] - bbox[0]
+          draw.text(((W - tw) / 2, 340), text, fill=(120, 120, 125), font=font)
+
+          img.save('.github/dmg-background.png')
+          print('DMG background generated')
+          "
+
       - name: Create DMG
         run: |
-          hdiutil create -volname "FinderCut" \
-            -srcfolder build/FinderCut.app \
-            -ov -format UDZO \
-            FinderCut.dmg
+          create-dmg \
+            --volname "FinderCut" \
+            --window-pos 200 120 \
+            --window-size 660 400 \
+            --icon-size 128 \
+            --icon "FinderCut.app" 185 200 \
+            --hide-extension "FinderCut.app" \
+            --app-drop-link 475 200 \
+            --background ".github/dmg-background.png" \
+            "FinderCut.dmg" \
+            "build/" \
+          || test $? -eq 2
 
       - name: Upload DMG
         uses: actions/upload-artifact@v4
