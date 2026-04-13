@@ -125,7 +125,7 @@ class FinderSync: FIFinderSync {
 
         // Show alert if there were errors
         if !errors.isEmpty {
-            showErrorAlert(errors: errors)
+            logMoveErrors(errors)
         }
     }
 
@@ -186,20 +186,13 @@ class FinderSync: FIFinderSync {
         return destinationURL
     }
 
-    /// Shows a simple error alert listing failed file moves.
-    private func showErrorAlert(errors: [(String, Error)]) {
-        DispatchQueue.main.async {
-            let alert = NSAlert()
-            alert.alertStyle = .warning
-            alert.messageText = "Some files could not be moved"
-
-            let details = errors.map { path, error in
-                "\(URL(fileURLWithPath: path).lastPathComponent): \(error.localizedDescription)"
-            }.joined(separator: "\n")
-
-            alert.informativeText = details
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
+    /// Logs failed file moves. Finder Sync extensions run as XPC processes
+    /// and cannot present modal alerts (NSAlert.runModal won't work).
+    private func logMoveErrors(_ errors: [(String, Error)]) {
+        for (path, error) in errors {
+            let name = URL(fileURLWithPath: path).lastPathComponent
+            NSLog("FinderCutExtension: Failed to move \(name): \(error.localizedDescription)")
         }
+        NSLog("FinderCutExtension: \(errors.count) file(s) could not be moved.")
     }
 }
