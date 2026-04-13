@@ -64,6 +64,11 @@ jobs:
       - name: Install create-dmg
         run: brew install create-dmg
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
       - name: Generate DMG background
         run: |
           pip3 install Pillow
