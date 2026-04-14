@@ -9,7 +9,7 @@
 #   ./build.sh --clean      Remove build directory before building
 #
 # Environment variables:
-#   SIGNING_IDENTITY  Code signing identity (default: "-" for ad-hoc)
+#   SIGNING_IDENTITY  Code signing identity (default: auto-detect, fallback to "-" for ad-hoc)
 #   BUNDLE_ID         Main app bundle ID (default: "com.findercut.FinderCut")
 
 set -euo pipefail
@@ -20,8 +20,34 @@ APP_NAME="FinderCut"
 EXT_NAME="FinderCutExtension"
 BUNDLE_ID="${BUNDLE_ID:-com.findercut.FinderCut}"
 EXT_BUNDLE_ID="${BUNDLE_ID}.FinderCutExtension"
-SIGNING_IDENTITY="${SIGNING_IDENTITY:--}"
 DEPLOYMENT_TARGET="15.0"
+
+# Auto-detect signing identity if not explicitly set
+if [ -n "${SIGNING_IDENTITY:-}" ]; then
+    : # User explicitly set SIGNING_IDENTITY, use it as-is
+else
+    # Look for a code signing identity in the keychain
+    DETECTED_IDENTITY=""
+    if command -v security &>/dev/null; then
+        # Prefer "Developer ID", then "Apple Development", then any valid codesigning identity
+        for pattern in "Developer ID Application" "Apple Development" "FinderCut"; do
+            MATCH=$(security find-identity -v -p codesigning 2>/dev/null \
+                | grep "$pattern" \
+                | head -1 \
+                | sed 's/.*"\(.*\)".*/\1/' || true)
+            if [ -n "$MATCH" ]; then
+                DETECTED_IDENTITY="$MATCH"
+                break
+            fi
+        done
+    fi
+
+    if [ -n "$DETECTED_IDENTITY" ]; then
+        SIGNING_IDENTITY="$DETECTED_IDENTITY"
+    else
+        SIGNING_IDENTITY="-"
+    fi
+fi
 
 # Paths (relative to this script's directory)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -90,7 +116,12 @@ fi
 
 echo "    swiftc:  $(swiftc --version 2>&1 | head -1)"
 echo "    SDK:     $SDK_PATH"
-echo "    Signing: $SIGNING_IDENTITY"
+if [ "$SIGNING_IDENTITY" = "-" ]; then
+    echo "    Signing: ad-hoc (TCC permissions will reset on each rebuild)"
+    echo "    Tip: Set SIGNING_IDENTITY or create a code signing certificate for persistent permissions"
+else
+    echo "    Signing: $SIGNING_IDENTITY"
+fi
 
 # ─── Clean ───────────────────────────────────────────────────────────────────
 
@@ -249,9 +280,15 @@ codesign --force --sign "$SIGNING_IDENTITY" \
 
 echo "==> Verifying..."
 
-codesign --verify --deep --strict "$APP_BUNDLE" 2>&1 && \
-    echo "    Code signature: OK" || \
-    echo "    WARNING: Code signature verification failed (expected with ad-hoc signing)"
+if codesign --verify --deep --strict "$APP_BUNDLE" 2>&1; then
+    echo "    Code signature: OK"
+else
+    if [ "$SIGNING_IDENTITY" = "-" ]; then
+        echo "    WARNING: Code signature verification failed (expected with ad-hoc signing)"
+    else
+        echo "    WARNING: Code signature verification failed"
+    fi
+fi
 
 echo ""
 echo "==> Build complete: $APP_BUNDLE"
