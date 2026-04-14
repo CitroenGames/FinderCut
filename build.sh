@@ -33,6 +33,7 @@ else
         for pattern in "Developer ID Application" "Apple Development" "FinderCut"; do
             MATCH=$(security find-identity -v -p codesigning 2>/dev/null \
                 | grep "$pattern" \
+                | grep -v "CSSMERR" \
                 | head -1 \
                 | sed 's/.*"\(.*\)".*/\1/' || true)
             if [ -n "$MATCH" ]; then
