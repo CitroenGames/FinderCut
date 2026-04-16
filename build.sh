@@ -140,6 +140,30 @@ mkdir -p "$APP_CONTENTS/Resources"
 mkdir -p "$EXT_CONTENTS/MacOS"
 mkdir -p "$EXT_CONTENTS/Resources"
 
+# ─── Copy Localization Resources ─────────────────────────────────────────────
+
+echo "==> Copying localization resources..."
+
+# Copy main app .lproj directories
+if [ -d "$SRC_DIR/Resources" ]; then
+    for lproj in "$SRC_DIR/Resources"/*.lproj; do
+        if [ -d "$lproj" ]; then
+            cp -R "$lproj" "$APP_CONTENTS/Resources/"
+            echo "    Copied $(basename "$lproj") to app bundle"
+        fi
+    done
+fi
+
+# Copy extension .lproj directories
+if [ -d "$EXT_SRC_DIR/Resources" ]; then
+    for lproj in "$EXT_SRC_DIR/Resources"/*.lproj; do
+        if [ -d "$lproj" ]; then
+            cp -R "$lproj" "$EXT_CONTENTS/Resources/"
+            echo "    Copied $(basename "$lproj") to extension bundle"
+        fi
+    done
+fi
+
 # ─── Collect Source Files ─────────────────────────────────────────────────────
 
 APP_SOURCES=(

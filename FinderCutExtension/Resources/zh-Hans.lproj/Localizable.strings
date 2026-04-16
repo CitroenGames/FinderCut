@@ -1,0 +1,16 @@
+/* Finder Sync Extension - Simplified Chinese */
+
+/* Context menu item to cut selected files */
+"Cut" = "剪切";
+
+/* Toolbar menu item to cut selected files */
+"Cut Selected" = "剪切所选项";
+
+/* Toolbar tooltip describing the extension's function */
+"Cut and paste files" = "剪切和粘贴文件";
+
+/* Accessibility description for cut icon */
+"Cut accessibility" = "剪切";
+
+/* Accessibility description for paste icon */
+"Paste accessibility" = "粘贴";

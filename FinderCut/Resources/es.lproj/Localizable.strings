@@ -1,0 +1,22 @@
+/* Main app - Spanish */
+
+/* Toggle label for enabling/disabling FinderCut */
+"Enabled" = "Activado";
+
+/* Toggle label for sound feedback on cut */
+"Play Sound on Cut" = "Reproducir sonido al cortar";
+
+/* Button to open Launch at Login settings */
+"Launch at Login..." = "Abrir al iniciar sesión...";
+
+/* Accessibility status when permission is granted */
+"Accessibility: Granted" = "Accesibilidad: Concedida";
+
+/* Accessibility status when permission is not granted */
+"Accessibility: Not Granted" = "Accesibilidad: No concedida";
+
+/* Button to request accessibility permission */
+"Grant Accessibility Permission" = "Conceder permiso de accesibilidad";
+
+/* Button to quit the application */
+"Quit FinderCut" = "Salir de FinderCut";

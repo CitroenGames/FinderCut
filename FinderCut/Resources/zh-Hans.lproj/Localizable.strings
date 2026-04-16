@@ -1,0 +1,22 @@
+/* Main app - Simplified Chinese */
+
+/* Toggle label for enabling/disabling FinderCut */
+"Enabled" = "已启用";
+
+/* Toggle label for sound feedback on cut */
+"Play Sound on Cut" = "剪切时播放声音";
+
+/* Button to open Launch at Login settings */
+"Launch at Login..." = "登录时打开...";
+
+/* Accessibility status when permission is granted */
+"Accessibility: Granted" = "辅助功能：已授权";
+
+/* Accessibility status when permission is not granted */
+"Accessibility: Not Granted" = "辅助功能：未授权";
+
+/* Button to request accessibility permission */
+"Grant Accessibility Permission" = "授予辅助功能权限";
+
+/* Button to quit the application */
+"Quit FinderCut" = "退出 FinderCut";

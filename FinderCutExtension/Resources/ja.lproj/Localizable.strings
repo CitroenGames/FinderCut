@@ -1,0 +1,16 @@
+/* Finder Sync Extension - Japanese */
+
+/* Context menu item to cut selected files */
+"Cut" = "カット";
+
+/* Toolbar menu item to cut selected files */
+"Cut Selected" = "選択項目をカット";
+
+/* Toolbar tooltip describing the extension's function */
+"Cut and paste files" = "ファイルをカットして貼り付け";
+
+/* Accessibility description for cut icon */
+"Cut accessibility" = "カット";
+
+/* Accessibility description for paste icon */
+"Paste accessibility" = "ペースト";

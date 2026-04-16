@@ -38,7 +38,7 @@ struct MenuBarView: View {
 
         Divider()
 
-        Text("Accessibility: \(accessibilityGranted ? "Granted" : "Not Granted")")
+        Text(accessibilityGranted ? "Accessibility: Granted" : "Accessibility: Not Granted")
             .foregroundColor(accessibilityGranted ? .green : .red)
             .onReceive(timer) { _ in
                 accessibilityGranted = AccessibilityChecker.isTrusted

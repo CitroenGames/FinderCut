@@ -1,0 +1,16 @@
+/* Finder Sync Extension - Spanish */
+
+/* Context menu item to cut selected files */
+"Cut" = "Cortar";
+
+/* Toolbar menu item to cut selected files */
+"Cut Selected" = "Cortar selección";
+
+/* Toolbar tooltip describing the extension's function */
+"Cut and paste files" = "Cortar y pegar archivos";
+
+/* Accessibility description for cut icon */
+"Cut accessibility" = "Cortar";
+
+/* Accessibility description for paste icon */
+"Paste accessibility" = "Pegar";
