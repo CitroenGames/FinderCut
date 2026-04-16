@@ -37,11 +37,11 @@ class FinderSync: FIFinderSync {
         case .contextualMenuForItems:
             // User right-clicked on one or more files/folders
             let cutItem = NSMenuItem(
-                title: "Cut",
+                title: NSLocalizedString("Cut", comment: "Context menu item to cut files"),
                 action: #selector(cutSelectedFiles(_:)),
                 keyEquivalent: ""
             )
-            cutItem.image = NSImage(systemSymbolName: "scissors", accessibilityDescription: "Cut")
+            cutItem.image = NSImage(systemSymbolName: "scissors", accessibilityDescription: NSLocalizedString("Cut accessibility", comment: "Accessibility description for cut icon"))
             menu.addItem(cutItem)
 
             // Also show "Paste Here" if there are pending cut files
@@ -58,7 +58,7 @@ class FinderSync: FIFinderSync {
         case .toolbarItemMenu:
             // Toolbar button click
             let cutItem = NSMenuItem(
-                title: "Cut Selected",
+                title: NSLocalizedString("Cut Selected", comment: "Toolbar menu item to cut files"),
                 action: #selector(cutSelectedFiles(_:)),
                 keyEquivalent: ""
             )
@@ -136,7 +136,7 @@ class FinderSync: FIFinderSync {
     }
 
     override var toolbarItemToolTip: String {
-        return "Cut and paste files"
+        return NSLocalizedString("Cut and paste files", comment: "Toolbar tooltip")
     }
 
     override var toolbarItemImage: NSImage {
@@ -151,16 +151,15 @@ class FinderSync: FIFinderSync {
 
         if hasPending, let paths = paths, !paths.isEmpty {
             let count = paths.count
-            let title = count == 1
-                ? "Paste Here (Move 1 item)"
-                : "Paste Here (Move \(count) items)"
+            let format = NSLocalizedString("Paste Here (Move %d items)", comment: "Paste menu item with file count")
+            let title = String.localizedStringWithFormat(format, count)
 
             let pasteItem = NSMenuItem(
                 title: title,
                 action: #selector(pasteFiles(_:)),
                 keyEquivalent: ""
             )
-            pasteItem.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Paste")
+            pasteItem.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: NSLocalizedString("Paste accessibility", comment: "Accessibility description for paste icon"))
             menu.addItem(pasteItem)
         }
     }

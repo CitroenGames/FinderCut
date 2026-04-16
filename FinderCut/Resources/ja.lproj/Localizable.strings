@@ -1,0 +1,22 @@
+/* Main app - Japanese */
+
+/* Toggle label for enabling/disabling FinderCut */
+"Enabled" = "有効";
+
+/* Toggle label for sound feedback on cut */
+"Play Sound on Cut" = "カット時にサウンドを再生";
+
+/* Button to open Launch at Login settings */
+"Launch at Login..." = "ログイン時に開く...";
+
+/* Accessibility status when permission is granted */
+"Accessibility: Granted" = "アクセシビリティ: 許可済み";
+
+/* Accessibility status when permission is not granted */
+"Accessibility: Not Granted" = "アクセシビリティ: 未許可";
+
+/* Button to request accessibility permission */
+"Grant Accessibility Permission" = "アクセシビリティの許可を付与";
+
+/* Button to quit the application */
+"Quit FinderCut" = "FinderCutを終了";
